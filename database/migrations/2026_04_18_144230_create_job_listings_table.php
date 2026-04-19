@@ -13,6 +13,19 @@ return new class extends Migration
     {
         Schema::create('job_listings', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('category_id')->constrained();
+            $table->string('title');
+            $table->string('slug')->unique();
+            $table->text('description');
+            $table->string('location');
+            $table->enum('job_type', ['full-time', 'part-time', 'remote', 'contract', 'internship']);
+            $table->unsignedBigInteger('salary_min')->nullable();
+            $table->unsignedBigInteger('salary_max')->nullable();
+            $table->enum('status', ['draft', 'active', 'closed'])->default('draft');
+            $table->boolean('is_featured')->default(false);
+            $table->timestamp('featured_until')->nullable();
+            $table->timestamp('expires_at')->nullable();
             $table->timestamps();
         });
     }
