@@ -2,65 +2,33 @@
 
 namespace App\Policies;
 
-use App\Models\JobListing;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use App\Models\JobListing;
 
 class JobListingPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
+    public function viewAny(?User $user): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, JobListing $jobListing): bool
+    public function view(?User $user, JobListing $jobListing): bool
     {
-        return false;
+        return $jobListing->status === 'active' || $jobListing->user_id === $user?->id;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return false;
+        return $user->isEmployer();
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, JobListing $jobListing): bool
     {
-        return false;
+        return $user->isAdmin() || $jobListing->user_id === $user->id;
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, JobListing $jobListing): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, JobListing $jobListing): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, JobListing $jobListing): bool
-    {
-        return false;
+        return $user->isAdmin() || $jobListing->user_id === $user->id;
     }
 }
