@@ -143,6 +143,10 @@ return [
             // 'users' => [
             //     'filterableAttributes'=> ['id', 'name', 'email'],
             // ],
+            \App\Models\JobListing::class => [
+                'filterableAttributes' => ['category', 'job_type', 'location'],
+                'sortableAttributes' => ['created_at'],
+            ]
         ],
     ],
 
