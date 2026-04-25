@@ -48,9 +48,18 @@ services:
                 - "-p${DB_PASSWORD}"
             retries: 3
             timeout: 5s
+    meilisearch:
+        image: getmeili/meilisearch:latest
+        ports:
+            - "7700:7700"
+        restart: unless-stopped
+        volumes:
+            - meili_data:/meili_data
 networks:
     sail:
         driver: bridge
 volumes:
     sail-mysql:
+        driver: local
+    meili_data:
         driver: local

@@ -23,3 +23,5 @@ class DatabaseSeeder extends Seeder
         ]);
     }
 }
+
+// default password for the user created by seeder is 'password'
