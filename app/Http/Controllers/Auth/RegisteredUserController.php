@@ -34,7 +34,7 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'in:employer,jobseeker'],
-            'company_name' => ['required_if:role,employer', 'nullable', 'string', 'max:255'],
+            'company_name' => ['string', 'max:255', 'required_if:role,employer'],
         ]);
 
         $user = User::create([

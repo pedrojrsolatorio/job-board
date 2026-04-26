@@ -39,22 +39,26 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
+        <div class="mt-4" x-data="{ role: '{{ old('role', 'jobseeker') }}' }">
         {{-- Role Selection --}}
-        <div class="mt-4">
             <x-input-label for='role' :value="__('I am a...')" />
-                <select id='role' name='role' class='mt-1 block w-full border-gray-300 rounded-md shadow-sm'
-            x-data x-on:change="$refs.companyDiv.style.display = $event.target.value === 'employer' ? 'block' : 'none'">
-                <option value='jobseeker'>Job Seeker</option>
-                <option value='employer'>Employer</option>
+                <select
+                    id='role'
+                    name='role'
+                    class='mt-1 block w-full border-gray-300 rounded-md shadow-sm'
+                    x-model="role"
+                >
+                <option value='jobseeker' @selected(old('role', 'jobseeker') === 'jobseeker')>Job Seeker</option>
+                <option value='employer' @selected(old('role') === 'employer')>Employer</option>
             </select>
             <x-input-error :messages="$errors->get('role')" class='mt-2' />
-        </div>
 
         {{-- Company Name (shown only for employer) --}}
-        <div x-ref='companyDiv' style='display:none'>
+        <div class="mt-4" x-show="role === 'employer'" x-cloak>
             <x-input-label for='company_name' :value="__('Company Name')" />
-            <x-text-input id='company_name' name='company_name' type='text' class='mt-1 block w-full' />
+            <x-text-input id='company_name' name='company_name' type='text' class='mt-1 block w-full' :value="old('company_name')" />
             <x-input-error :messages="$errors->get('company_name')" class='mt-2' />
+        </div>
         </div>
 
         <div class="flex items-center justify-end mt-4">
