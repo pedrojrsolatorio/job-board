@@ -263,6 +263,14 @@
                 </form>
             </div>
         </div>
+
+        @if($errors->has('resume') || $errors->has('cover_letter'))
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    document.getElementById('apply-modal')?.classList.remove('hidden');
+                });
+            </script>
+        @endif
     @endif
 @endauth
 
