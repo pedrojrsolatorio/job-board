@@ -41,6 +41,12 @@ class JobListingResource extends Resource
             Forms\Components\Toggle::make('is_featured')->label('Featured'),
             Forms\Components\DateTimePicker::make('featured_until'),
             Forms\Components\DateTimePicker::make('expires_at'),
+            Forms\Components\Select::make('tags')
+                ->relationship('tags', 'name')
+                ->multiple()
+                ->preload()
+                ->searchable()
+                ->columnSpanFull(),
         ]);
     }
 
