@@ -6,6 +6,8 @@ use App\Models\{JobListing, JobApplication};
 use App\Notifications\NewApplicationNotification;
 use App\Notifications\ApplicationStatusNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class JobApplicationController extends Controller
 {
@@ -66,5 +68,26 @@ class JobApplicationController extends Controller
         $application->user->notify(new ApplicationStatusNotification($application));
 
         return back()->with('success', 'Application status updated.');
+    }
+
+    // Employer: download applicant resume
+    public function downloadResume(JobApplication $application)
+    {
+        $this->authorize('update', $application->jobListing);
+
+        $resumePath = $application->resume_path;
+        if (!$resumePath) {
+            abort(404);
+        }
+
+        $disk = Storage::disk('private');
+        if (!$disk->exists($resumePath)) {
+            abort(404);
+        }
+
+        $extension = pathinfo($resumePath, PATHINFO_EXTENSION);
+        $downloadName = Str::slug($application->user->name) . '-resume' . ($extension ? '.' . $extension : '');
+
+        return $disk->download($resumePath, $downloadName);
     }
 }

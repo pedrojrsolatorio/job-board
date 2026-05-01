@@ -23,6 +23,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
         Route::get('/applications/{job}', [JobApplicationController::class, 'forJob'])->name('applications.for-job');
         Route::patch('/applications/{application}/status', [JobApplicationController::class, 'updateStatus'])->name('applications.update-status');
+        Route::get('/resumes/{application}/download', [JobApplicationController::class, 'downloadResume'])->name('resumes.download');
     });
 
     // Job seeker routes
