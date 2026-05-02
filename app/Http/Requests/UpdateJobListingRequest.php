@@ -11,7 +11,11 @@ class UpdateJobListingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        $jobListing = $this->route('myJob') ?? $this->route('my_job');
+
+        return $jobListing
+            ? $this->user()?->can('update', $jobListing) === true
+            : $this->user()?->isEmployer() === true;
     }
 
     /**
@@ -22,7 +26,17 @@ class UpdateJobListingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title'       => ['required', 'string', 'max:255'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'description' => ['required', 'string', 'min:100'],
+            'location'    => ['required', 'string', 'max:255'],
+            'job_type'    => ['required', 'in:full-time,part-time,remote,contract,internship'],
+            'salary_min'  => ['nullable', 'integer', 'min:0'],
+            'salary_max'  => ['nullable', 'integer', 'gte:salary_min'],
+            'tags'        => ['nullable', 'array'],
+            'tags.*'      => ['exists:tags,id'],
+            'expires_at'  => ['nullable', 'date', 'after:today'],
+            'status'      => ['nullable', 'in:active,draft,closed'],
         ];
     }
 }
