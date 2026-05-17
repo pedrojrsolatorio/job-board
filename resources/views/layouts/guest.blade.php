@@ -113,7 +113,7 @@
         .fade-up-d3 { animation-delay: 0.3s; }
     </style>
     </head>
-    <body>
+    <body class="flex flex-col min-h-screen">
         <!-- ===== NAVIGATION ===== -->
     <nav class="border-b border-white/5 bg-[#060d1f]/95 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
@@ -215,20 +215,22 @@
         </div>
     @endif
 
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-        <div>
-            <a href="/">
-                <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-            </a>
-        </div>
+    <main class="flex-grow bg-gray-100">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
+            <div>
+                <a href="/">
+                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+                </a>
+            </div>
 
-        <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-            {{ $slot }}
+            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
+                {{ $slot }}
+            </div>
         </div>
-    </div>
+    </main>
 
         <!-- ===== FOOTER ===== -->
-    <footer class="border-t border-white/5 mt-24 bg-[var(--navy-900)]">
+    <footer class="border-t border-white/5 bg-[var(--navy-900)]">
         <div class="max-w-7xl mx-auto px-6 lg:px-8 py-16">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
                 <div class="md:col-span-2">
