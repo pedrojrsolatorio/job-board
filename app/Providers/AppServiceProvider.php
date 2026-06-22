@@ -25,7 +25,8 @@ class AppServiceProvider extends ServiceProvider
         // Cost control: cap AI resume analyses to 30/minute app-wide,
         // so a burst of applications can't spike your API bill.
         RateLimiter::for('ai-analysis', function () {
-            return Limit::perMinute(30);
+            // return Limit::perMinute(30);
+            return Limit::perMinute(10); // free tier is usually limited to ~15 RPM
         });
     }
 }

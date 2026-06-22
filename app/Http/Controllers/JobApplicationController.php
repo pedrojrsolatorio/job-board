@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\AnalyzeJobApplication;
 use App\Models\{JobListing, JobApplication};
 use App\Notifications\NewApplicationNotification;
 use App\Notifications\ApplicationStatusNotification;
@@ -35,6 +36,9 @@ class JobApplicationController extends Controller
         // Notify employer
         $job->user->notify(new NewApplicationNotification($application));
 
+        // AI screening runs in the background — never blocks the candidate's submission
+        AnalyzeJobApplication::dispatch($application);
+
         return back()->with('success', 'Application submitted successfully!');
     }
 
@@ -48,10 +52,22 @@ class JobApplicationController extends Controller
     }
 
     // Employer: view applications for a job
-    public function forJob(JobListing $job)
+    public function forJob(Request $request, JobListing $job)
     {
         $this->authorize('update', $job);
-        $applications = $job->applications()->with('user')->latest()->paginate(20);
+
+        $query = $job->applications()->with('user');
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $request->get('sort') === 'score'
+            ? $query->orderByDesc('match_score')
+            : $query->latest();
+
+        $applications = $query->paginate(20)->withQueryString();
+
         return view('employer.applications.index', compact('job', 'applications'));
     }
 
