@@ -16,8 +16,38 @@ class ResumeAnalysisService
     // Cost control: hard caps on input/output size
     private const MAX_RESUME_CHARS = 6000;
     private const MAX_JOB_DESC_CHARS = 2000;
-    private const MODEL = 'claude-haiku-4-5-20251001'; // cheap + fast, fine for scoring
+    // private const MODEL = 'claude-haiku-4-5-20251001'; // cheap + fast, fine for scoring
+    private const MODEL = 'gemini-3-flash-preview'; // check ai.google.dev for current free-tier model names
     private const MAX_TOKENS = 600;
+
+    // public function analyze(JobApplication $application): array
+    // {
+    //     $resumeText = Str::limit($this->extractText($application->resume_path), self::MAX_RESUME_CHARS, '');
+    //     $jobDescription = Str::limit($application->jobListing->description, self::MAX_JOB_DESC_CHARS, '');
+
+    //     $prompt = $this->buildPrompt($application->jobListing->title, $jobDescription, $resumeText);
+
+    //     $response = Http::withHeaders([
+    //         'x-api-key' => config('services.anthropic.key'),
+    //         'anthropic-version' => '2023-06-01',
+    //         'content-type' => 'application/json',
+    //     ])
+    //         ->timeout(30)
+    //         ->retry(2, 500, throw: false) // transient network hiccups, not API logic errors
+    //         ->post('https://api.anthropic.com/v1/messages', [
+    //             'model' => self::MODEL,
+    //             'max_tokens' => self::MAX_TOKENS,
+    //             'messages' => [
+    //                 ['role' => 'user', 'content' => $prompt],
+    //             ],
+    //         ]);
+
+    //     if ($response->failed()) {
+    //         throw new RuntimeException('Anthropic API error: ' . $response->status() . ' ' . $response->body());
+    //     }
+
+    //     return $this->parseResponse($response->json('content.0.text'));
+    // }
 
     public function analyze(JobApplication $application): array
     {
@@ -26,26 +56,26 @@ class ResumeAnalysisService
 
         $prompt = $this->buildPrompt($application->jobListing->title, $jobDescription, $resumeText);
 
-        $response = Http::withHeaders([
-            'x-api-key' => config('services.anthropic.key'),
-            'anthropic-version' => '2023-06-01',
-            'content-type' => 'application/json',
-        ])
-            ->timeout(30)
-            ->retry(2, 500, throw: false) // transient network hiccups, not API logic errors
-            ->post('https://api.anthropic.com/v1/messages', [
-                'model' => self::MODEL,
-                'max_tokens' => self::MAX_TOKENS,
-                'messages' => [
-                    ['role' => 'user', 'content' => $prompt],
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/' . self::MODEL . ':generateContent?key=' . config('services.gemini.key');
+
+        $response = Http::timeout(30)
+            ->retry(2, 500, throw: false)
+            ->post($url, [
+                'contents' => [
+                    ['parts' => [['text' => $prompt]]],
+                ],
+                'generationConfig' => [
+                    'maxOutputTokens' => self::MAX_TOKENS,
+                    'temperature' => 0.3,
                 ],
             ]);
 
+        // Http facade doesn't support a 5th query-array param directly — build the URL instead:
         if ($response->failed()) {
-            throw new RuntimeException('Anthropic API error: ' . $response->status() . ' ' . $response->body());
+            throw new RuntimeException('Gemini API error: ' . $response->status() . ' ' . $response->body());
         }
 
-        return $this->parseResponse($response->json('content.0.text'));
+        return $this->parseResponse($response->json('candidates.0.content.parts.0.text'));
     }
 
     private function extractText(string $path): string
