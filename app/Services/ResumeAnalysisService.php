@@ -17,7 +17,7 @@ class ResumeAnalysisService
     private const MAX_RESUME_CHARS = 6000;
     private const MAX_JOB_DESC_CHARS = 2000;
     // private const MODEL = 'claude-haiku-4-5-20251001'; // cheap + fast, fine for scoring
-    private const MODEL = 'gemini-3-flash-preview'; // check ai.google.dev for current free-tier model names
+    private const MODEL = 'gemini-2.0-flash'; // check ai.google.dev for current free-tier model names, but run 'curl "https://generativelanguage.googleapis.com/v1beta/models?key=YOUR_API_KEY"' in terminal to see the available model
     private const MAX_TOKENS = 600;
 
     // public function analyze(JobApplication $application): array
