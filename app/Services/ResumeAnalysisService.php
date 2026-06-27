@@ -17,8 +17,9 @@ class ResumeAnalysisService
     private const MAX_RESUME_CHARS = 6000;
     private const MAX_JOB_DESC_CHARS = 2000;
     // private const MODEL = 'claude-haiku-4-5-20251001'; // cheap + fast, fine for scoring
-    private const MODEL = 'gemini-2.0-flash'; // check ai.google.dev for current free-tier model names, but run 'curl "https://generativelanguage.googleapis.com/v1beta/models?key=YOUR_API_KEY"' in terminal to see the available model
-    private const MAX_TOKENS = 600;
+    private const MODEL = 'gemini-3-flash-preview'; // check ai.google.dev for current free-tier model names, but run 'curl "https://generativelanguage.googleapis.com/v1beta/models?key=YOUR_API_KEY"' in terminal to see the available model
+    // private const MAX_TOKENS = 600;
+    private const MAX_TOKENS = 1500;
 
     // public function analyze(JobApplication $application): array
     // {
@@ -67,6 +68,17 @@ class ResumeAnalysisService
                 'generationConfig' => [
                     'maxOutputTokens' => self::MAX_TOKENS,
                     'temperature' => 0.3,
+                    'responseMimeType' => 'application/json',
+                    'responseSchema' => [
+                        'type' => 'OBJECT',
+                        'properties' => [
+                            'match_score' => ['type' => 'INTEGER'],
+                            'summary'     => ['type' => 'STRING'],
+                            'strengths'   => ['type' => 'ARRAY', 'items' => ['type' => 'STRING']],
+                            'gaps'        => ['type' => 'ARRAY', 'items' => ['type' => 'STRING']],
+                        ],
+                        'required' => ['match_score', 'summary', 'strengths', 'gaps'],
+                    ],
                 ],
             ]);
 
@@ -131,11 +143,10 @@ class ResumeAnalysisService
             throw new RuntimeException('Empty AI response');
         }
 
-        $clean = preg_replace('/```json|```/', '', $text);
-        $data = json_decode(trim($clean), true);
+        $data = json_decode(trim($text), true);
 
         if (!is_array($data) || !isset($data['match_score'])) {
-            throw new RuntimeException('Malformed AI response: ' . $text);
+            throw new RuntimeException('Malformed AI response: ' . Str::limit($text, 300));
         }
 
         return [
