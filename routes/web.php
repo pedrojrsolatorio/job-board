@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AiAssistantController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobListingController;
@@ -19,6 +20,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:employer'])->group(function () {
         Route::resource('my-jobs', JobListingController::class)->except(['index', 'show']);
         Route::get('/my-jobs', [JobListingController::class, 'myJobs'])->name('my-jobs.index');
+        Route::post('/ai/generate-job-description', [AiAssistantController::class, 'generateJobDescription'])
+            ->middleware('throttle:ai-job-description')
+            ->name('ai.generate-job-description');
         Route::post('/payments/promote/{job}', [PaymentController::class, 'promote'])->name('payments.promote');
         Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
         Route::get('/applications/{job}', [JobApplicationController::class, 'forJob'])->name('applications.for-job');
