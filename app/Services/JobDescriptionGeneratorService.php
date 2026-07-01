@@ -10,7 +10,8 @@ class JobDescriptionGeneratorService
 {
     // private const MODEL = 'gemini-2.0-flash'; // verify current free-tier model name at ai.google.dev
     private const MODEL = 'gemini-3-flash-preview';
-    private const MAX_TOKENS = 500;
+    // private const MAX_TOKENS = 500;
+    private const MAX_TOKENS = 1500;
 
     public function generate(array $data): string
     {
